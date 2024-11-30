@@ -1,9 +1,6 @@
-# Effekt Template
+# effektivecompile2riscv: A Compiler for Risc-V written in Effekt
 
-> [!WARNING]
-> This is a work-in-progress, feel free to contribute!
-
-This template provides a starting point for Effekt projects.
+Credits: This project uses the following effekt project template: https://github.com/jiribenes/effekt-template
 
 ## Table of contents
 
@@ -11,32 +8,14 @@ This template provides a starting point for Effekt projects.
 - [Useful commands](#useful-commands)
   - [Effekt commands](#effekt-commands)
   - [Nix-related commands](#nix-related-commands)
-- [Example projects](#example-projects-using-this-template)
 - [Repository structure](#repository-structure)
 - [CI](#ci)
 
 ---
 
-## First steps
+## Overview
 
-After using this template, follow these steps to set up your project:
-
-1. Set up your development environment:
-   - Clone this repository locally.
-   - Open it in VSCode.
-   - Install the Effekt VSCode extension offered in the pop-up in the bottom right.
-
-2. Customize the project:
-   - Open `flake.nix` and update the project name and other relevant values (follow the comments).
-   - Push your `flake.nix` file after the changes and see if the CI agrees.
-
-3. Set-up auto-update CI:
-   - Go to Settings -> Actions -> General and check "Allow GitHub Actions to create and approve pull requests"
-     in order to get weekly Pull Requests on Tuesday that update the Effekt version in CI.
-   - See the [CI](#ci) section for more details
-
-3. Replace this `README` with your own!
-   - Please link back to this repo if you can :)
+A project overview can be found here.
 
 ## Useful commands
 
@@ -93,11 +72,6 @@ Build the project (output in `result/bin/`):
 ```sh
 nix build
 ```
-
-## Example projects using this template
-
-- [`effekt-stm`](https://github.com/jiribenes/effekt-stm)
-- This very project!
 
 ## Repository structure
 
