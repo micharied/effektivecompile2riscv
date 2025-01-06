@@ -1,5 +1,34 @@
 module main // must be named same as the file!
 
 import src/lib
+import src/syntax
+import io
+import io/filesystem
+import io/error
 
-def main(): Unit = println(helloWorld())
+def main(): Unit = { 
+  val assembly = codeGenProgram(Prog(Fun("start", Return(UnaryOperation(Negation(),Const(-24)))))).foldLeft("") {(acc, el) => acc ++ show(el) ++ "\n"}
+  with on[IOError].panic;
+  writeFile("main.s", assembly)
+}
+
+def codeGenProgram(p: Program): List[String] = p match {
+  case Prog(function) => codeGenFunctionDeclaration(function)
+}
+
+def codeGenFunctionDeclaration(p: FunctionDeclaration): List[String] = p match {
+  case Fun(name, statement) => [".section .text", ".global _"++name ++ "\n","_" ++ name ++ ":"].append(codeGenStatement(statement))
+}
+
+def codeGenStatement(s: Statement): List[String] = s match {
+  case Return(e) => codeGenExpression(e).append(["mv a0, t0", "li a7, 93", "ecall"])
+}
+
+def codeGenExpression(e: Expression): List[String] = e match {
+  case Const(value) => ["li t0, " ++ show(value)]
+  case UnaryOperation(op, exp) => op match {
+    case Negation() => codeGenExpression(exp).append(["sub t0, x0, t0"])
+    case LogicalNegation() => [""]
+    case BitwiseComplement() => [""]
+  }
+}

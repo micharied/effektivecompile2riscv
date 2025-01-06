@@ -4,3 +4,7 @@ out
 # Nix
 result
 result-*
+
+# direnv
+.envrc
+.direnv/

@@ -1,0 +1,7 @@
+TODO 1: erstellen einer core language mit wenig features
+TODO 2: code generation von core language zu risc-v
+TODO 3: testing pipeline aufsetzen
+TODO 4: lexer + parser aufsetzen
+TODO 5: refactor und features ergänzen
+TODO 6: lowering
+TODO 7: pretty printer

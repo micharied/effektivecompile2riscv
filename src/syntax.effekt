@@ -1,0 +1,21 @@
+type Expression {
+    Const(value: Int)
+    UnaryOperation(operator: UnaryOperator, exp: Expression)
+}
+type UnaryOperator { 
+    Negation()
+    LogicalNegation()
+    BitwiseComplement()
+}
+
+type Statement{
+     Return(exp: Expression)
+}
+
+type FunctionDeclaration {
+    Fun(name: String, statement: Statement)
+}
+
+type Program {
+    Prog(function: FunctionDeclaration)
+}

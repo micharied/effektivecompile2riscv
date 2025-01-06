@@ -1,5 +1,4 @@
 {
-  ## TODO: Change to your project's description:
   description = "A Risc-V compiler written in Effekt";
 
   inputs = {
@@ -29,7 +28,7 @@
         ## Effekt configuration
         effektConfig = {
           ## Uncomment and set a specific version if needed:
-          version = "0.10.0";
+          version = "0.16.0";
 
           ## Select the backends that your project works on:
           backends = with effekt-lib.effektBackends; [ js ];
@@ -47,7 +46,6 @@
           effekt = effektBuild;
           inherit (effektConfig) backends;
         };
-
         devShells.default = effekt-lib.mkDevShell {
           effekt = effektBuild;
         };
