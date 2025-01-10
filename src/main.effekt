@@ -28,6 +28,7 @@ def codeGenExpression(e: Expression): List[String] = e match {
   case Const(value) => ["li t0, " ++ show(value)]
   case UnaryOperation(op, exp) => op match {
     case Negation() => codeGenExpression(exp).append(["sub t0, x0, t0"])
+    case Print() => codeGenExpression(exp).append()
     case LogicalNegation() => [""]
     case BitwiseComplement() => [""]
   }

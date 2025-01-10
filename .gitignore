@@ -8,3 +8,7 @@ result-*
 # direnv
 .envrc
 .direnv/
+
+# test assembly
+test.o
+test

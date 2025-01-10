@@ -4,7 +4,7 @@ Credits: This project uses the following effekt project template: https://github
 
 ## Table of contents
 
-- [First steps](#first-steps)
+- [Setup for testing the riscv assembly code](#setup)
 - [Useful commands](#useful-commands)
   - [Effekt commands](#effekt-commands)
   - [Nix-related commands](#nix-related-commands)
@@ -12,6 +12,26 @@ Credits: This project uses the following effekt project template: https://github
 - [CI](#ci)
 
 ---
+
+## Setup for testing the riscv assembly code 
+
+To be able to run the binaries you have to follow these steps:
+
+1. Install the RiscV toolchain: https://github.com/riscv-collab/riscv-gnu-toolchain  
+   Wichtig: Es wird die ELF Version mit newlib benötigt. 
+2. Install an Emulator like Quemu: https://www.qemu.org/download/
+3. Run the following commands to run a test riscv assembly:
+```sh
+riscv64-unknown-elf-as -o test.o test.s
+
+riscv64-unknown-elf-gcc -o test test.o
+
+./test 
+# or if you dont have qemu-user-binfmt installed 
+#qemu-riscv64 ./test
+
+```
+
 
 ## Overview
 
