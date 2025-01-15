@@ -1,0 +1,103 @@
+module src/lexer
+
+import string
+import text/regex
+
+record Position(line: Int, col: Int, index: Int)
+
+type TokenKind { Number(); Ident(); Punct(); Space(); OpenBrace(); ClosingBrace(); OpenParen(); ClosingParen()}
+
+def show(t: TokenKind): String = t match {
+  case Number() => "number"
+  case
+  case Ident() => "identifier"
+  case Punct() => "punctuation"
+  case Space() => "space"
+}
+
+def inixEq(t1: TokenKind, t2: TokenKind): Bool = 
+  (t1, t2) match {
+    case (Number(), Number()) => true
+    case (Ident(), Ident()) => true
+    case (Punct(), Punct()) => true
+    case (Space(), Space()) => true
+    case _ => false
+  }
+
+record Token(kind: TokenKind, text: String, position: Position)
+record TokenRx(kind: TokenKind, rx: Regex)
+
+val tokenDesriptors = [
+  TokenRx(Number(), "^[0-9]+".regex),
+  TokenRx(Ident(),  "^[a-zA-Z]+".regex),
+  TokenRx(Punct(),  "^[=,.()\\[\\]{}:]".regex),
+  TokenRx(Space(),  "^[ \t\n]+".regex)
+  ]
+
+def show(t: Token): String = t.kind.show
+
+interface Lexer {
+  def peek(): Option[Token]
+  def next(): Token
+}
+
+
+effect LexerError(mst: String, pos: Position): Nothing
+
+def report { prog: => Unit/LexerError}: Unit =
+  try { prog()} with LexerError { (msg, pos) =>
+    println(pos.line.show ++ ":" ++ pos.col.show ++ " " ++ msg)
+  }
+  
+def lexer[R](in: String) {prog: => R/Lexer} : R/LexerError = {
+  var index = 0;
+  var col = 1; 
+  var line = 1;
+
+  def position() = Position(line, col, index)
+  def input() = in.substring(index)
+  def consume(text: String): Unit = {
+    with ignore[MissingValue]
+    val lines = text.split("\n")
+    val offset = lines.last.length
+    index = index + text.length
+    line = line + lines.size - 1
+    if (lines.size == 1) { col = col + text.length} else {col = offset}
+  } 
+  def eos(): Bool = index >= in.length
+
+  def tryMatch(desc: TokenRx): Option[Token] = desc.rx.exec(input()).map { m => Token(desc.kind, m.matched, position())}
+
+  def tryMatchAll(descs: List[TokenRx]): Option[Token] = descs match {
+    case Nil() => None()
+    case Cons(desc, descs) => tryMatch(desc).orElse {tryMatchAll(descs)} 
+  }
+
+
+  try{prog()} with Lexer {
+    def peek() = resume(tryMatchAll(tokenDesriptors))
+    def next() = 
+      if (eos()){ 
+        do LexerError("Unexpexted EOS", position())
+      }else {
+        val tok = tryMatchAll(tokenDesriptors).getOrElse {
+          do LexerError("Cannot tokenize input", position())
+        }
+        consume(tok.text)
+        resume(tok)
+      }
+  }
+
+}
+
+def main() = {
+  println("main start")
+  report {
+    lexer(" foo()") {
+      val t = do next()
+      val t2 = do peek()
+      val t3 = do next()
+      inspect((t, t2, t3))
+    }
+  }
+}
