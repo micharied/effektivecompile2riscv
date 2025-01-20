@@ -1,0 +1,85 @@
+module src/parser
+
+import src/lexer
+import src/syntax
+import string
+
+interface Nondent {
+  def alt(): Bool
+  def fail[A](msg: String): A
+}
+
+effect Parser = { Nondent, Lexer }
+
+def acceptToken { p: Token => Bool } : Token / Parser = {
+  val got = do next();
+  if(p(got)) got
+  else do fail("Unexpected token " ++ got.show)
+}
+
+def any() = acceptToken { t => true }
+def accept(exp: TokenKind) = acceptToken { t => t.kind == exp }
+def ident() = accept(Ident()).text
+def number() = accept(Number()).text
+def openBrace() = accept(OpenBrace()).text
+def closingBrace() = accept(ClosingBrace()).text
+def openParen() = accept(OpenParen()).text
+def closingParen() = accept(ClosingParen()).text
+def function() = accept(Function()).text
+def space() = accept(Space()).text
+def myreturn() = accept(Return()).text
+
+def or[R] {p: => R } {q: => R } =
+  if(do alt()) { p() } else { q() }
+
+def opt[R] { p: => R }: Option[R] / Parser =
+  or { Some(p()) } { None() }
+
+def many { p: => Unit }: Unit / Parser =
+  or { some { p() } } { () }
+
+def some { p: => Unit }: Unit / Parser =
+  { p(); many { p() } }
+
+
+
+def parseProgram(): Program / Parser = {
+  val func = parseFunctionDeclaration()
+  Prog(func)
+}
+
+def parseFunctionDeclaration(): FunctionDeclaration / Parser = {
+ val stms = parseStatement()
+  Fun("main", stms)
+}
+
+def parseStatement(): Statement / Parser = {
+  val ret = parseExpression()
+  Return(ret)
+}
+
+def parseExpression(): Expression / Parser = {
+  Const(1)
+}
+
+type ParseResult[R] {
+  Success(t: R);
+  Failure(msg: String)
+}
+
+def parse[R](input: String) { p: => R / Parser }: ParseResult[R] = try {
+  lexer(input) { Success(p()) }
+} with Nondent {
+  def alt() = resume(true) match {
+    case Failure(msg) => resume(false)
+    case Success(res) => Success(res)
+  }
+  def fail[A](msg) = Failure(msg)
+} with LexerError { (msg, pos) =>
+  Failure(msg)
+}
+
+
+def main() = {
+  inspect(parse("43") {parseProgram()})
+}
