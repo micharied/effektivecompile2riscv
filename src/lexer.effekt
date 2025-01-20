@@ -5,33 +5,57 @@ import text/regex
 
 record Position(line: Int, col: Int, index: Int)
 
-type TokenKind { Number(); Ident(); Punct(); Space(); OpenBrace(); ClosingBrace(); OpenParen(); ClosingParen()}
-
-def show(t: TokenKind): String = t match {
-  case Number() => "number"
-  case
-  case Ident() => "identifier"
-  case Punct() => "punctuation"
-  case Space() => "space"
+type TokenKind { 
+  Number();
+  Ident();
+  OpenBrace();
+  ClosingBrace();
+  OpenParen();
+  ClosingParen();
+  Function()
+  Space();
+  Return()
 }
 
-def inixEq(t1: TokenKind, t2: TokenKind): Bool = 
+def infixEq(t1: TokenKind, t2: TokenKind): Bool =
   (t1, t2) match {
     case (Number(), Number()) => true
     case (Ident(), Ident()) => true
-    case (Punct(), Punct()) => true
     case (Space(), Space()) => true
+    case (OpenBrace(), OpenBrace()) => true
+    case (ClosingBrace(), ClosingBrace()) => true
+    case (OpenParen(), OpenParen()) => true
+    case (ClosingParen(), ClosingParen()) => true
+    case (Function(), Function()) => true
+    case (Return(), Return()) => true
     case _ => false
   }
+
+def show(t: TokenKind): String = t match {
+  case Number() => "number"
+  case Ident() => "identifier"
+  case OpenBrace() => "openbrace"
+  case ClosingBrace() => "closingbrace"
+  case OpenParen() => "openparen"
+  case ClosingParen() => "closingparen"
+  case Function() => "function"
+  case Space() => "space"
+  case Return() => "return"
+}
 
 record Token(kind: TokenKind, text: String, position: Position)
 record TokenRx(kind: TokenKind, rx: Regex)
 
 val tokenDesriptors = [
   TokenRx(Number(), "^[0-9]+".regex),
+  TokenRx(Function(), "fun".regex),
+  TokenRx(Return(), "return".regex),
+  TokenRx(Space(),  "^[ \t\n]+".regex), 
   TokenRx(Ident(),  "^[a-zA-Z]+".regex),
-  TokenRx(Punct(),  "^[=,.()\\[\\]{}:]".regex),
-  TokenRx(Space(),  "^[ \t\n]+".regex)
+  TokenRx(OpenBrace(), "{".regex),
+  TokenRx(ClosingBrace(), "}".regex),
+  TokenRx(OpenParen(), "\\(".regex),
+  TokenRx(ClosingParen(), "\\)".regex)
   ]
 
 def show(t: Token): String = t.kind.show
@@ -93,8 +117,8 @@ def lexer[R](in: String) {prog: => R/Lexer} : R/LexerError = {
 def main() = {
   println("main start")
   report {
-    lexer(" foo()") {
-      val t = do next()
+    lexer("fun foo(){ return 43}") {
+      val t = do peek()
       val t2 = do peek()
       val t3 = do next()
       inspect((t, t2, t3))
