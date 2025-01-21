@@ -20,5 +20,5 @@ type FunctionDeclaration {
 }
 
 type Program {
-    Prog(function: FunctionDeclaration)
+    Prog(functions: List[FunctionDeclaration])
 }

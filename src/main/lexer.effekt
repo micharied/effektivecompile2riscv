@@ -52,10 +52,10 @@ val tokenDesriptors = [
   TokenRx(Return(), "return".regex),
   TokenRx(Space(),  "^[ \t\n]+".regex), 
   TokenRx(Ident(),  "^[a-zA-Z]+".regex),
-  TokenRx(OpenBrace(), "{".regex),
-  TokenRx(ClosingBrace(), "}".regex),
-  TokenRx(OpenParen(), "\\(".regex),
-  TokenRx(ClosingParen(), "\\)".regex)
+  TokenRx(OpenBrace(), "^[{]".regex),
+  TokenRx(ClosingBrace(), "^[}]".regex),
+  TokenRx(OpenParen(), "^[(]".regex),
+  TokenRx(ClosingParen(), "^[)]".regex)
   ]
 
 def show(t: Token): String = t.kind.show
@@ -71,6 +71,18 @@ effect LexerError(mst: String, pos: Position): Nothing
 def report { prog: => Unit/LexerError}: Unit =
   try { prog()} with LexerError { (msg, pos) =>
     println(pos.line.show ++ ":" ++ pos.col.show ++ " " ++ msg)
+  }
+
+def skipSpaces(): Unit / Lexer = do peek() match {
+  case None() => ()
+  case Some(Token(Space(), _, _)) => do next(); skipSpaces()
+  case _ => ()
+}
+
+def skipWhitespace[R] { prog: => R / Lexer }: R / Lexer =
+  try { prog() } with Lexer {
+    def peek() = { skipSpaces(); resume(do peek()) }
+    def next() = { skipSpaces(); resume(do next()) }
   }
   
 def lexer[R](in: String) {prog: => R/Lexer} : R/LexerError = {
@@ -117,11 +129,25 @@ def lexer[R](in: String) {prog: => R/Lexer} : R/LexerError = {
 def main() = {
   println("main start")
   report {
-    lexer("fun foo(){ return 43}") {
-      val t = do peek()
-      val t2 = do peek()
+    lexer("foo(1    {23})") {
+      skipWhitespace {
+      val t = do next()
+      val t2 = do next()
       val t3 = do next()
-      inspect((t, t2, t3))
+      val t4 = do next()
+      val t5 = do next()
+      inspect((t, t2, t3, t4, t5))
+    }
     }
   }
+
+    report {
+    lexer("fuasn foo (   \n  )") {
+      skipWhitespace {
+      val t = do next()
+      val t2 = do next()
+      val t3 = do next()
+      inspect((t, t2, t3))      }
+    }
+    }
 }

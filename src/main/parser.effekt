@@ -14,7 +14,7 @@ effect Parser = { Nondent, Lexer }
 def acceptToken { p: Token => Bool } : Token / Parser = {
   val got = do next();
   if(p(got)) got
-  else do fail("Unexpected token " ++ got.show)
+  else do fail("Unexpected token " ++ got.show ++ " at line" ++ got.position.line.show ++ " column " ++ got.position.col.show)
 }
 
 def any() = acceptToken { t => true }
@@ -42,15 +42,22 @@ def some { p: => Unit }: Unit / Parser =
   { p(); many { p() } }
 
 
-
 def parseProgram(): Program / Parser = {
-  val func = parseFunctionDeclaration()
-  Prog(func)
+  var funcs = empty[FunctionDeclaration]
+  many {
+    funcs = Cons(parseFunctionDeclaration(), funcs)
+  }
+
+  if (funcs.count { (f) => f match { case Fun(name, _) => name == "main" }} == 1) {
+    Prog(funcs)
+  } else {
+    do fail("No or to many main function found")
+  }
 }
 
 def parseFunctionDeclaration(): FunctionDeclaration / Parser = {
  val stms = parseStatement()
-  Fun("main", stms)
+  Fun("mains", stms)
 }
 
 def parseStatement(): Statement / Parser = {
@@ -59,7 +66,7 @@ def parseStatement(): Statement / Parser = {
 }
 
 def parseExpression(): Expression / Parser = {
-  Const(1)
+  Const(number().length())
 }
 
 type ParseResult[R] {
@@ -68,7 +75,7 @@ type ParseResult[R] {
 }
 
 def parse[R](input: String) { p: => R / Parser }: ParseResult[R] = try {
-  lexer(input) { Success(p()) }
+  lexer(input) { skipWhitespace { Success(p()) }}
 } with Nondent {
   def alt() = resume(true) match {
     case Failure(msg) => resume(false)
@@ -81,5 +88,5 @@ def parse[R](input: String) { p: => R / Parser }: ParseResult[R] = try {
 
 
 def main() = {
-  inspect(parse("43") {parseProgram()})
+  inspect(parse("43 5") {parseProgram()})
 }
