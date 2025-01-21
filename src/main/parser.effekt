@@ -1,7 +1,7 @@
-module src/parser
+module src/main/parser
 
-import src/lexer
-import src/syntax
+import src/main/lexer
+import src/main/syntax
 import string
 
 interface Nondent {

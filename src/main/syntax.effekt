@@ -1,3 +1,5 @@
+module main/sry/syntax
+
 type Expression {
     Const(value: Int)
     UnaryOperation(operator: UnaryOperator, exp: Expression)

@@ -1,7 +1,7 @@
-module main // must be named same as the file!
+module main/main // must be named same as the file!
 
-import src/lib
-import src/syntax
+import src/main/lib
+import src/main/syntax
 import io
 import io/filesystem
 import io/error

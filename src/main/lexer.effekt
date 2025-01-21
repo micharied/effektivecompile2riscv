@@ -1,4 +1,4 @@
-module src/lexer
+module src/main/lexer
 
 import string
 import text/regex
