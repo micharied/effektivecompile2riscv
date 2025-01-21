@@ -1,0 +1,11 @@
+module src/test/lexer
+
+import test
+import char
+
+def testSuite() = suite("test/parser") {
+
+  test("sampletest") {
+    assertEqual("", "Hello, world!")
+  }
+}

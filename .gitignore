@@ -11,4 +11,4 @@ result-*
 
 # test assembly
 test.o
-test
+.test

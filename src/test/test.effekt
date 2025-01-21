@@ -1,0 +1,14 @@
+module src/test/test
+
+import test
+import src/test/lexer
+import src/test/parser
+
+
+def main() = mainSuite("ec2r tests") {
+  
+  parser::testSuite()
+  lexer::testSuite()
+
+  ()
+}
